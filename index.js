@@ -28,7 +28,7 @@ let mysql_config = {
     password: 'h4XeMCyt',
     database: 'nodejs_demo',
     port: 26799
-        // timezone: 'utc'
+        // port: '3306'
 }
 let connection = null
 
