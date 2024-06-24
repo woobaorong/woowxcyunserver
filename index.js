@@ -20,29 +20,30 @@ app.get("/", async(req, res) => {
 
 
 
-let mysql = require('mysql2');
-let mysql_config = {
-    host: "10.35.103.151",
-    user: 'root',
-    password: 'h4XeMCyt',
-    database: 'nodejs_demo',
-    timezone: 'utc'
-}
-let connection = null
+// let mysql = require('mysql2');
+// let mysql_config = {
+//     //host: "10.35.103.151:3306",
+//     host: "sh-cynosdbmysql-grp-p4zugz24.sql.tencentcdb.com:26799",
+//     user: 'root',
+//     password: 'h4XeMCyt',
+//     database: 'nodejs_demo',
+//     timezone: 'utc'
+// }
+// let connection = null
 
-function handleDisconnection() {
-    connection = mysql.createConnection(mysql_config);
-    connection.connect(function(err) {
-        if (err) { console.log("connection-connect-err") }
-    });
-    connection.on('error', function(err) {
-        console.log("connection-err")
-        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-            handleDisconnection();
-        } else { throw err; }
-    });
-}
-handleDisconnection()
+// function handleDisconnection() {
+//     connection = mysql.createConnection(mysql_config);
+//     connection.connect(function(err) {
+//         if (err) { console.log("connection-connect-err") }
+//     });
+//     connection.on('error', function(err) {
+//         console.log("connection-err")
+//         if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+//             handleDisconnection();
+//         } else { throw err; }
+//     });
+// }
+// handleDisconnection()
 
 
 
