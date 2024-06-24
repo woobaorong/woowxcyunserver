@@ -20,30 +20,31 @@ app.get("/", async(req, res) => {
 
 
 
-// let mysql = require('mysql2');
-// let mysql_config = {
-//     //host: "10.35.103.151:3306",
-//     host: "sh-cynosdbmysql-grp-p4zugz24.sql.tencentcdb.com:26799",
-//     user: 'root',
-//     password: 'h4XeMCyt',
-//     database: 'nodejs_demo',
-//     timezone: 'utc'
-// }
-// let connection = null
+let mysql = require('mysql2');
+let mysql_config = {
+    //host: "10.35.103.151:3306",
+    host: "sh-cynosdbmysql-grp-p4zugz24.sql.tencentcdb.com",
+    user: 'root',
+    password: 'h4XeMCyt',
+    database: 'nodejs_demo',
+    port: 26799
+        // timezone: 'utc'
+}
+let connection = null
 
-// function handleDisconnection() {
-//     connection = mysql.createConnection(mysql_config);
-//     connection.connect(function(err) {
-//         if (err) { console.log("connection-connect-err") }
-//     });
-//     connection.on('error', function(err) {
-//         console.log("connection-err")
-//         if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-//             handleDisconnection();
-//         } else { throw err; }
-//     });
-// }
-// handleDisconnection()
+function handleDisconnection() {
+    connection = mysql.createConnection(mysql_config);
+    connection.connect(function(err) {
+        if (err) { console.log("connection-connect-err") }
+    });
+    connection.on('error', function(err) {
+        console.log("connection-err")
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+            handleDisconnection();
+        } else { throw err; }
+    });
+}
+handleDisconnection()
 
 
 
@@ -74,12 +75,29 @@ app.get("/api/count", async(req, res) => {
     });
 });
 
+app.get("/api/get_test", async(req, res) => {
+    let sql = 'SELECT * FROM player'
+    let obj = await query(sql, []);
+    if (obj.results) {
+        res.send(getRes(1, "success", obj.results));
+    } else {
+        res.send(getRes(0, "数据库错误"));
+    }
+
+});
+
 app.get("/api/xixi", async(req, res) => {
-    const result = await Counter.count();
-    res.send({
-        code: 0,
-        data: "xixi",
-    });
+    if (req.query.id) {
+        let sql = 'SELECT * FROM players WHERE  player_id=?'
+        let obj = await asQuery(sql, [req.query.id]);
+        if (obj.results || obj.results[0]) {
+            res.send(getRes(1, "success", obj.results[0]));
+        } else {
+            res.send(getRes(0, "数据库错误"));
+        }
+    } else {
+        res.send(getRes(0, "参数错误"));
+    }
 });
 
 // 小程序调用，获取微信 Open ID
@@ -92,10 +110,40 @@ app.get("/api/wx_openid", async(req, res) => {
 const port = process.env.PORT || 80;
 
 async function bootstrap() {
-    await initDB();
+    // await initDB();
     app.listen(port, () => {
         console.log("启动成功", port);
     });
 }
 
 bootstrap();
+
+function replaceQuestionMarks(str, arr) {
+    let index = 0;
+    while (str.includes("?")) {
+        let s = str.replace("?", () => arr[index]);
+        index++
+        str = s
+    }
+    return str;
+}
+
+function getRes(code = 0, text = "", obj = {}) {
+    return { code: code, text: text, obj: obj }
+}
+
+async function query(sql, permeter) {
+    var promise = new Promise((resolve) => {
+        try {
+            sql = replaceQuestionMarks(sql, permeter)
+            console.log(sql)
+            connection.query(sql, permeter, (error, results, fields) => {
+                console.log('results', results);
+                resolve({ error: error, results: results })
+            });
+        } catch (error) {
+            resolve({ error: error, results: null })
+        }
+    });
+    return promise;
+}
