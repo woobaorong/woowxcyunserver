@@ -17,6 +17,37 @@ app.get("/", async(req, res) => {
     res.sendFile(path.join(__dirname, "index.html"));
 });
 
+
+
+
+let mysql = require('mysql2');
+let mysql_config = {
+    host: "10.35.103.151",
+    user: 'root',
+    password: 'h4XeMCyt',
+    database: 'nodejs_demo',
+    timezone: 'utc'
+}
+let connection = null
+
+function handleDisconnection() {
+    connection = mysql.createConnection(mysql_config);
+    connection.connect(function(err) {
+        if (err) { console.log("connection-connect-err") }
+    });
+    connection.on('error', function(err) {
+        console.log("connection-err")
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+            handleDisconnection();
+        } else { throw err; }
+    });
+}
+handleDisconnection()
+
+
+
+
+
 // 更新计数
 app.post("/api/count", async(req, res) => {
     const { action } = req.body;
