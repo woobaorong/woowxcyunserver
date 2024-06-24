@@ -68,7 +68,7 @@ app.get("/api/get_test", async(req, res) => {
         if (obj.results) {
             res.send(getRes(1, "success", obj.results));
         } else {
-            res.send(getRes(0, "数据错误"));
+            res.send(getRes(0, "数据错误" + obj));
         }
     } catch (error) {
         res.send(getRes(0, "数据库错误"));
