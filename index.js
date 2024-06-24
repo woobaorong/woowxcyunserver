@@ -12,13 +12,6 @@ app.use(express.json());
 app.use(cors());
 app.use(logger);
 
-// 首页
-app.get("/", async(req, res) => {
-    res.sendFile(path.join(__dirname, "index.html"));
-});
-
-
-
 
 let mysql = require('mysql2');
 let mysql_config = {
@@ -50,62 +43,55 @@ handleDisconnection()
 
 
 
-// 更新计数
-app.post("/api/count", async(req, res) => {
-    const { action } = req.body;
-    if (action === "inc") {
-        await Counter.create();
-    } else if (action === "clear") {
-        await Counter.destroy({
-            truncate: true,
-        });
-    }
-    res.send({
-        code: 0,
-        data: await Counter.count(),
-    });
-});
+// post写法参考
+// app.post("/api/count", async(req, res) => {
+//     const { action } = req.body;
+//     if (action === "inc") {
+//         await Counter.create();
+//     } else if (action === "clear") {
+//         await Counter.destroy({
+//             truncate: true,
+//         });
+//     }
+//     res.send({
+//         code: 0,
+//         data: await Counter.count(),
+//     });
+// });
 
-// 获取计数
-app.get("/api/count", async(req, res) => {
-    const result = await Counter.count();
-    res.send({
-        code: 0,
-        data: result,
-    });
-});
+
 
 app.get("/api/get_test", async(req, res) => {
     let sql = 'SELECT * FROM player'
-    let obj = await query(sql, []);
-    if (obj.results) {
-        res.send(getRes(1, "success", obj.results));
-    } else {
+    try {
+        let obj = await query(sql, []);
+        if (obj.results) {
+            res.send(getRes(1, "success", obj.results));
+        } else {
+            res.send(getRes(0, "数据错误"));
+        }
+    } catch (error) {
         res.send(getRes(0, "数据库错误"));
     }
 
+
 });
 
-app.get("/api/xixi", async(req, res) => {
-    if (req.query.id) {
-        let sql = 'SELECT * FROM players WHERE  player_id=?'
-        let obj = await asQuery(sql, [req.query.id]);
-        if (obj.results || obj.results[0]) {
-            res.send(getRes(1, "success", obj.results[0]));
-        } else {
-            res.send(getRes(0, "数据库错误"));
-        }
-    } else {
-        res.send(getRes(0, "参数错误"));
-    }
-});
 
-// 小程序调用，获取微信 Open ID
-app.get("/api/wx_openid", async(req, res) => {
-    if (req.headers["x-wx-source"]) {
-        res.send(req.headers["x-wx-openid"]);
-    }
-});
+//get写法参考
+// app.get("/api/xixi", async(req, res) => {
+//     if (req.query.id) {
+//         let sql = 'SELECT * FROM players WHERE  player_id=?'
+//         let obj = await asQuery(sql, [req.query.id]);
+//         if (obj.results || obj.results[0]) {
+//             res.send(getRes(1, "success", obj.results[0]));
+//         } else {
+//             res.send(getRes(0, "数据库错误"));
+//         }
+//     } else {
+//         res.send(getRes(0, "参数错误"));
+//     }
+// });
 
 const port = process.env.PORT || 80;
 
