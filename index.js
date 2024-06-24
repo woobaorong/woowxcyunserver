@@ -15,13 +15,13 @@ app.use(logger);
 
 let mysql = require('mysql2');
 let mysql_config = {
-    //host: "10.35.103.151:3306",
-    host: "sh-cynosdbmysql-grp-p4zugz24.sql.tencentcdb.com",
+    host: "10.35.103.151:3306",
+    //host: "sh-cynosdbmysql-grp-p4zugz24.sql.tencentcdb.com",
     user: 'root',
     password: 'h4XeMCyt',
     database: 'nodejs_demo',
-    port: 26799
-        // port: '3306'
+    //port: 26799
+    port: '3306'
 }
 let connection = null
 
