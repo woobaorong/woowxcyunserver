@@ -15,7 +15,7 @@ app.use(logger);
 
 let mysql = require('mysql2');
 let mysql_config = {
-    host: "10.35.103.151:3306",
+    host: "10.39.103.75",
     //host: "sh-cynosdbmysql-grp-7guaff22.sql.tencentcdb.com",
     user: 'root',
     password: 'Wu806806',
