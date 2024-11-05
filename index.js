@@ -15,13 +15,13 @@ app.use(logger);
 
 let mysql = require('mysql2');
 let mysql_config = {
-    host: "10.35.103.151:3306",
-    //host: "sh-cynosdbmysql-grp-p4zugz24.sql.tencentcdb.com",
+    //host: "10.35.103.151:3306",
+    host: "sh-cynosdbmysql-grp-7guaff22.sql.tencentcdb.com",
     user: 'root',
-    password: 'h4XeMCyt',
-    database: 'nodejs_demo',
-    //port: 26799
-    port: '3306'
+    password: 'Wu806806',
+    database: 'men_mao_players',
+    port: 22998
+    //port: '3306'
 }
 let connection = null
 
@@ -62,7 +62,7 @@ handleDisconnection()
 
 
 app.get("/api/get_test", async(req, res) => {
-    let sql = 'SELECT * FROM player'
+    let sql = 'SELECT * FROM players'
     try {
         let obj = await query(sql, []);
         if (obj.results) {
@@ -73,8 +73,6 @@ app.get("/api/get_test", async(req, res) => {
     } catch (error) {
         res.send(getRes(0, "数据库错误"));
     }
-
-
 });
 
 
