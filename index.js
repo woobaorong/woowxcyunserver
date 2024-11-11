@@ -1,5 +1,6 @@
 const path = require("path");
 const express = require("express");
+const bodyParser = require('body-parser');
 const cors = require("cors");
 const morgan = require("morgan");
 const { init: initDB, Counter } = require("./db");
@@ -7,6 +8,7 @@ const { init: initDB, Counter } = require("./db");
 const logger = morgan("tiny");
 
 const app = express();
+
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cors());
@@ -15,22 +17,22 @@ app.use(logger);
 
 let mysql = require('mysql2');
 let mysql_config = {
-    //host: "10.39.103.75",
-    host: "sh-cynosdbmysql-grp-7guaff22.sql.tencentcdb.com",
+    host: "10.39.103.75",
+    //host: "sh-cynosdbmysql-grp-7guaff22.sql.tencentcdb.com",
     user: 'root',
     password: 'Wu806806',
     database: 'men_mao_players',
-    port: 22998
-    //port: '3306'
+    //port: 22998
+    port: 3306
 }
 let connection = null
 
 function handleDisconnection() {
     connection = mysql.createConnection(mysql_config);
-    connection.connect(function(err) {
+    connection.connect(function (err) {
         if (err) { console.log("connection-connect-err") }
     });
-    connection.on('error', function(err) {
+    connection.on('error', function (err) {
         console.log("connection-err")
         if (err.code === 'PROTOCOL_CONNECTION_LOST') {
             handleDisconnection();
@@ -40,28 +42,54 @@ function handleDisconnection() {
 handleDisconnection()
 
 
-
-
-
 // post写法参考
-// app.post("/api/count", async(req, res) => {
-//     const { action } = req.body;
-//     if (action === "inc") {
-//         await Counter.create();
-//     } else if (action === "clear") {
-//         await Counter.destroy({
-//             truncate: true,
-//         });
-//     }
-//     res.send({
-//         code: 0,
-//         data: await Counter.count(),
-//     });
-// });
+app.post("/api/report_data", async (req, res) => {
+    let data = req.body;
+    let sql = "INSERT INTO players (id, name, head,coins,stars) VALUES ('?', '?', '?',?,?) ON DUPLICATE KEY UPDATE coins = ? , stars = ? ;"
+    try {
+        let obj = await query(sql, [data.account, data.nickName, data.headUrl, data.diamond, data.moonCount, data.diamond, data.moonCount]);
+        if (obj.results) {
+            //res.send(getRes(1, "success", obj.results));
+            res.send("success");
+        } else {
+            res.send(getRes(0, "数据错误" + obj));
+        }
+    } catch (error) {
+        res.send(getRes(0, "数据库错误"));
+    }
+});
+
+app.get("/api/get_data", async (req, res) => {
+    let id = req.query.id
+    let sql = "SELECT * FROM players where id = '?' "
+    try {
+        let obj = await query(sql, [id]);
+        if (obj.results) {
+            res.send(getRes(1, "success", obj.results));
+        } else {
+            res.send(getRes(0, "数据错误" + obj));
+        }
+    } catch (error) {
+        res.send(getRes(0, "数据库错误"));
+    }
+});
+
+app.get("/api/get_all_data", async (req, res) => {
+    let sql = "SELECT * FROM players ORDER BY stars DESC limit 50"
+    try {
+        let obj = await query(sql, []);
+        if (obj.results) {
+            res.send(getRes(1, "success", obj.results));
+        } else {
+            res.send(getRes(0, "数据错误" + obj));
+        }
+    } catch (error) {
+        res.send(getRes(0, "数据库错误"));
+    }
+});
 
 
-
-app.get("/api/get_test", async(req, res) => {
+app.get("/api/get_test", async (req, res) => {
     let sql = 'SELECT * FROM players'
     try {
         let obj = await query(sql, []);
@@ -75,6 +103,9 @@ app.get("/api/get_test", async(req, res) => {
     }
 });
 
+app.get("/api/manifest", async (req, res) => {
+    res.send("success");
+});
 
 //get写法参考
 // app.get("/api/xixi", async(req, res) => {
