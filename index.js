@@ -45,7 +45,7 @@ handleDisconnection()
 // post写法参考
 app.post("/api/report_data", async (req, res) => {
     let data = req.body;
-    let sql = "INSERT INTO players (id, name, head,coins,stars) VALUES ('?', '?', '?',?,?) ON DUPLICATE KEY UPDATE coins = ? , stars = ? ;"
+    let sql = "INSERT INTO players (id, name , head , coins , stars) VALUES (\"??\" , \"??\", \"??\" , ?? , ??) ON DUPLICATE KEY UPDATE coins = ?? , stars = ?? ;"
     try {
         let obj = await query(sql, [data.account, data.nickName, data.headUrl, data.diamond, data.moonCount, data.diamond, data.moonCount]);
         if (obj.results) {
@@ -59,9 +59,25 @@ app.post("/api/report_data", async (req, res) => {
     }
 });
 
+app.post('/poxy/*', (req, res) => {
+    const targetUrl = 'https://api.weixin.qq.com' + req.url.replace("/poxy/", "/");
+    // 构建转发选项
+    const options = {
+        method: 'POST',
+       // headers: req.headers,
+        body: JSON.stringify(req.body)
+    };
+    fetch(targetUrl, options)
+        .then(response => response.json())
+        .then(data => res.json(data))
+        .catch((error) => {
+            res.status(500).send(error)
+        });
+});
+
 app.get("/api/get_data", async (req, res) => {
     let id = req.query.id
-    let sql = "SELECT * FROM players where id = '?' "
+    let sql = "SELECT * FROM players where id = \"??\" "
     try {
         let obj = await query(sql, [id]);
         if (obj.results) {
@@ -135,8 +151,8 @@ bootstrap();
 
 function replaceQuestionMarks(str, arr) {
     let index = 0;
-    while (str.includes("?")) {
-        let s = str.replace("?", () => arr[index]);
+    while (str.includes("??")) {
+        let s = str.replace("??", () => arr[index]);
         index++
         str = s
     }
